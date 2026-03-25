@@ -39,6 +39,14 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
 
 if (SHOW_CONSOLE)
 	target_compile_definitions(Cloud PRIVATE SHOW_CONSOLE)
+else ()
+    if (OS_DIR STREQUAL "win")
+        set_target_properties(Cloud PROPERTIES WIN32_EXECUTABLE TRUE)
+
+        if (MSVC)
+            target_link_options(Cloud PRIVATE "/ENTRY:mainCRTStartup")
+        endif()
+    endif()
 endif ()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
