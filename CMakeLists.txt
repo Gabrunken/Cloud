@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(Cloud)
 
-#Or else print only on file
-option(SHOW_CONSOLE "Show console" ON)
-
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(OS_DIR "win")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -24,18 +21,30 @@ else ()
     message(FATAL_ERROR "Architecture not supported: ${CMAKE_SYSTEM_PROCESSOR}")
 endif ()
 
-message(STATUS "Configurazione Cloud per: ${OS_DIR} / ${ARCH_DIR}")
+message(STATUS "Building for: ${OS_DIR} / ${ARCH_DIR}")
 
-file(GLOB_RECURSE SOURCES
+file(GLOB_RECURSE MAIN_SOURCES #My code
     src/*.cpp
     src/*.c
-    include/*.hpp
+    include/*.hpp #Used by IDEs to account for header files too.
     include/*.h
+	third-party/*.hpp
+	third-party/*.h
 )
 
-add_executable(Cloud ${SOURCES})
+file(GLOB THIRD_PARTY_SOURCES
+	third-party/tracy/TracyClient.cpp
+	third-party/*.cpp
+	third-party/*.c
+)
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
+add_executable(Cloud ${MAIN_SOURCES} ${THIRD_PARTY_SOURCES})
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${MAIN_SOURCES} ${THIRD_PARTY_SOURCES}) #Make them show in IDEs
+
+#Compiler macros
+option(SHOW_CONSOLE "Show console" ON) #Or else print only on file
+option(TRACY_ENABLED "Enable tracy" ON) #Enable profiling
 
 if (SHOW_CONSOLE)
 	target_compile_definitions(Cloud PRIVATE SHOW_CONSOLE)
@@ -44,12 +53,19 @@ else ()
         set_target_properties(Cloud PROPERTIES WIN32_EXECUTABLE TRUE)
 
         if (MSVC)
-            target_link_options(Cloud PRIVATE "/ENTRY:mainCRTStartup")
+            target_link_options(Cloud PRIVATE "/ENTRY:mainCRTStartup") #Change entry point from WinMain to classic int main()
         endif()
     endif()
 endif ()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+if (TRACY_ENABLED)
+	target_compile_definitions(Cloud PRIVATE TRACY_ENABLED)
+endif ()
+
+include_directories(
+${CMAKE_CURRENT_SOURCE_DIR}/include 
+${CMAKE_CURRENT_SOURCE_DIR}/third-party
+${CMAKE_CURRENT_SOURCE_DIR}/third-party/tracy)
 
 set(LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS_DIR}/${ARCH_DIR}")
 target_link_directories(Cloud PRIVATE ${LIB_PATH})

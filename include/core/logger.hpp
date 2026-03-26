@@ -35,9 +35,8 @@ namespace Logger
 		{}
 	};
 
-	void Initialize(const std::string& outputFilePath);
-
+	bool Initialize(const std::string& outputFilePath);
+	//The caller must be formatted like this, as a convention: "<Namespace/Class>::<Function>"
 	void PushMessage(const std::string& caller, const std::string& message, MessageGravity gravity);
-
 	void Terminate();
 }

@@ -11,6 +11,8 @@
 #include <platform/gtui.h>
 #endif
 
+#include <tracy/Tracy.hpp>
+
 static bool initialized = false;
 static FILE* fileOutput;
 
@@ -19,10 +21,12 @@ static std::thread thread;
 static std::condition_variable cv;
 static bool exitFlag;
 
-std::mutex mutex;
+static std::mutex mutex;
 
 static void WriteMessages()
 {
+	tracy::SetThreadName("Logger Thread");
+
 	while (true)
 	{
 		Logger::Message message;
@@ -46,7 +50,7 @@ static void WriteMessages()
 
 		formattedMessage.append(timestamp);
 		formattedMessage.append(message.caller);
-		formattedMessage.append("::");
+		formattedMessage.append(" -- ");
 
 		switch (message.gravity)
 		{
@@ -54,29 +58,29 @@ static void WriteMessages()
 			#ifdef SHOW_CONSOLE
 			printf(GTUI_ESC_BG_RED GTUI_ESC_ENABLE_BOLD);
 			#endif
-			formattedMessage.append("FATAL: ");
+			formattedMessage.append("FATAL -- ");
 			break;
 		case Logger::Error:
 			#ifdef SHOW_CONSOLE
 			printf(GTUI_ESC_BG_BRIGHT_RED);
 			#endif
-			formattedMessage.append("Error: ");
+			formattedMessage.append("Error -- ");
 			break;
 		case Logger::Warning:
 			#ifdef SHOW_CONSOLE
 			printf(GTUI_ESC_BG_YELLOW);
 			#endif
-			formattedMessage.append("Warning: ");
+			formattedMessage.append("Warning -- ");
 			break;
 		case Logger::Note:
 			//printf(GTUI_ESC_BG_DEFAULT); //No need
-			formattedMessage.append("Note: ");
+			formattedMessage.append("Note -- ");
 			break;
 		case Logger::Success:
 			#ifdef SHOW_CONSOLE
 			printf(GTUI_ESC_BG_GREEN);
 			#endif
-			formattedMessage.append("Success: ");
+			formattedMessage.append("Success -- ");
 			break;
 		default:
 			break;
@@ -105,16 +109,16 @@ static FORCE_INLINE struct tm GetCurrentTimeStamp()
 	return timestamp;
 }
 
-void Logger::Initialize(const std::string& outputFilePath)
+bool Logger::Initialize(const std::string& outputFilePath)
 {
 	mutex.lock();
 	if (initialized)
 	{
-		messageQueue.emplace("Logger", "cannot initialize if already initialized", Error, GetCurrentTimeStamp());
+		messageQueue.emplace("Logger::Initialize", "Cannot initialize if already initialized", Warning, GetCurrentTimeStamp());
 		mutex.unlock();
 
 		cv.notify_one();
-		return;
+		return true;
 	}
 
 	#ifdef SHOW_CONSOLE
@@ -124,13 +128,11 @@ void Logger::Initialize(const std::string& outputFilePath)
 	fileOutput = fopen(outputFilePath.c_str(), "ab+");
 	if (!fileOutput)
 	{
-		std::string message = "failed to open or create the file at path: ";
-		message.append(outputFilePath);
-		messageQueue.emplace("Logger", message, Error, GetCurrentTimeStamp());
+		#ifdef SHOW_CONSOLE
+		printf("Logger::Initialize -- FATAL -- Cannot open or create the log file at filepath: %s\n", outputFilePath.c_str());
+		#endif
 		mutex.unlock();
-
-		cv.notify_one();
-		return;
+		return false;
 	}
 
 	thread = std::thread(WriteMessages);
@@ -151,6 +153,8 @@ void Logger::Initialize(const std::string& outputFilePath)
 
 	initialized = true;
 	mutex.unlock();
+
+	return true;
 }
 
 void Logger::Terminate()
@@ -158,26 +162,26 @@ void Logger::Terminate()
 	mutex.lock();
 	if (!initialized)
 	{
-		messageQueue.emplace("Logger", "cannot terminate if not initialized", Error, GetCurrentTimeStamp());
+		#ifdef SHOW_CONSOLE
+		printf("Logger::Terminate -- Warning -- Cannot terminate this module if it has not been initialized.\n");
+		#endif
 		mutex.unlock();
-
-		cv.notify_one();
 		return;
 	}
 
 	exitFlag = true;
 	mutex.unlock();
 
+	cv.notify_all();
+	thread.join(); //Will block the caller thread and wait for WriteMessages to return.
+
 	#ifdef SHOW_CONSOLE
+	printf(GTUI_ESC_BG_GREEN GTUI_ESC_ENABLE_BOLD "Logger::Terminate -- Success -- logger terminated successfully.\n" GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD);
 	gtuiTerminate();
 	#endif
 
-	#ifdef SHOW_CONSOLE
-	printf(GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD);
-	#endif
-
-	cv.notify_all();
-	thread.join(); //Will block the caller thread and wait for WriteMessages to return.
+	char* exitMessage = "Logger::Terminate -- Success -- logger terminated successfully.\n";
+	fwrite(exitMessage, 1, strlen(exitMessage), fileOutput);
 
 	if (fileOutput)
 	{
@@ -194,10 +198,10 @@ void Logger::PushMessage(const std::string& caller, const std::string& message, 
 
 	if (!initialized)
 	{
-		messageQueue.emplace(Message("Logger", "you must first initialize logger to push a message", Error, GetCurrentTimeStamp()));
+		#ifdef SHOW_CONSOLE
+		printf("Logger::PushMessage -- Error -- Cannot push a message if this module has not been initialized.\n");
+		#endif
 		mutex.unlock();
-
-		cv.notify_one();
 		return;
 	}
 
