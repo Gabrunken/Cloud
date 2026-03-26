@@ -41,6 +41,7 @@ this is a late decision which will take place when everything is already set up.
   - nlohmann/json - json serialization
   - glm - linear algebra math
   - gtui - cross-platform terminal interaction
+  - tracy - profiler
 
 <h3>Issues / Pull Requests</h3>
 
