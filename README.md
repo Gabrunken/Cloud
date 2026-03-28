@@ -12,6 +12,7 @@ You'll need cmake.
 > run "cmake -S . -B build"
 > flags:
 > - -DSHOW\_CONSOLE=ON, this will write debug info and show the console
+> - -DTRACY_ENABLED=ON, enable tracy profiling (slight overhead, remove on release)
 
 <h3>What Cloud aims at</h3>
 
