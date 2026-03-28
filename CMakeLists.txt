@@ -81,8 +81,8 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(glfw)
 
-set(LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS_DIR}/${ARCH_DIR}")
-target_link_directories(Cloud PRIVATE ${LIB_PATH})
+#set(LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS_DIR}/${ARCH_DIR}")
+#target_link_directories(Cloud PRIVATE ${LIB_PATH})
 
 if (OS_DIR STREQUAL "win")
     target_link_libraries(Cloud PRIVATE glfw opengl32 gdi32 user32 shell32)
