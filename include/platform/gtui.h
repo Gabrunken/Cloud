@@ -13,11 +13,19 @@
 /* == ESCAPE SEQUENCES (write them to the stdout) == */
 
 //Takes strings
+#ifdef __APPLE__
+#define GTUI_ESC_MOVE_CURSOR(x, y)         "\033[" x ";" y "H"
+#define GTUI_ESC_TRANSLATE_CURSOR_UP(y)    "\033[" y "A"
+#define GTUI_ESC_TRANSLATE_CURSOR_DOWN(y)  "\033[" y "B"
+#define GTUI_ESC_TRANSLATE_CURSOR_RIGHT(x) "\033[" x "C"
+#define GTUI_ESC_TRANSLATE_CURSOR_LEFT(x)  "\033[" x "D"
+#else
 #define GTUI_ESC_MOVE_CURSOR(x, y)         "\033["x";"y"H"
 #define GTUI_ESC_TRANSLATE_CURSOR_UP(y)    "\033["y"A"
 #define GTUI_ESC_TRANSLATE_CURSOR_DOWN(y)  "\033["y"B"
 #define GTUI_ESC_TRANSLATE_CURSOR_RIGHT(x) "\033["x"C"
 #define GTUI_ESC_TRANSLATE_CURSOR_LEFT(x)  "\033["x"D"
+#endif
 
 #define GTUI_ESC_START      "\033[1;1H"
 #define GTUI_ESC_UP         "\033[1A"
