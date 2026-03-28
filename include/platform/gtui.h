@@ -293,7 +293,7 @@ void gtuiSetBlockingInput(char block, uint16_t tick)
     #ifndef _WIN32
     struct termios conf;
     tcgetattr(STDIN_FILENO, &conf);
-    conf.c_cc[VMIN] = _isInputBlocking == 1;
+    conf.c_cc[VMIN] = _gtuiIsInputBlocking == 1;
     #endif
 }
 
@@ -383,6 +383,7 @@ GTUIEvent gtuiGetInput()
     }
     #else
     //unix is to be implemented.
+    return event;
     #endif
 }
 #endif

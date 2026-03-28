@@ -47,7 +47,14 @@ int main(int argc, char** argv)
 
 		return 1;
 	}
-	
+
+	//Test logger
+	Logger::PushMessage("Main", "This is a fatal error", Logger::Fatal);
+	Logger::PushMessage("Main", "This is an error", Logger::Error);
+	Logger::PushMessage("Main", "This is a warning", Logger::Warning);
+	Logger::PushMessage("Main", "This is a note", Logger::Note);
+	Logger::PushMessage("Main", "This is a success", Logger::Success);
+		
 	while (MainLoop());
 }
 

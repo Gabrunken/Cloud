@@ -26,7 +26,6 @@ static std::mutex mutex;
 static void WriteMessages()
 {
 	tracy::SetThreadName("Logger Thread");
-
 	while (true)
 	{
 		Logger::Message message;
@@ -87,10 +86,11 @@ static void WriteMessages()
 		}
 
 		formattedMessage.append(message.message);
-		formattedMessage.append("\n");
+		formattedMessage.append(GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD);
+		formattedMessage.append("\r\n");
 
 		#ifdef SHOW_CONSOLE
-		printf("%s" GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD, formattedMessage.c_str());
+		printf("%s", formattedMessage.c_str());
 		#endif
 
 		fwrite(formattedMessage.c_str(), 1, formattedMessage.size(), fileOutput);
@@ -129,7 +129,7 @@ bool Logger::Initialize(const std::string& outputFilePath)
 	if (!fileOutput)
 	{
 		#ifdef SHOW_CONSOLE
-		printf("Logger::Initialize -- FATAL -- Cannot open or create the log file at filepath: %s\n", outputFilePath.c_str());
+		printf("Logger::Initialize -- FATAL -- Cannot open or create the log file at filepath: %s\r\n", outputFilePath.c_str());
 		#endif
 		mutex.unlock();
 		return false;
@@ -137,12 +137,12 @@ bool Logger::Initialize(const std::string& outputFilePath)
 
 	thread = std::thread(WriteMessages);
 
-	char* startupMessage =
-		"******************\n"
-		"*                *\n"
-		"* LOGGER STARTED *\n"
-		"*                *\n"
-		"******************\n";
+	const char* startupMessage =
+		"******************\r\n"
+		"*                *\r\n"
+		"* LOGGER STARTED *\r\n"
+		"*                *\r\n"
+		"******************\r\n";
 
 	fwrite(startupMessage, 1, strlen(startupMessage), fileOutput);
 
@@ -163,7 +163,7 @@ void Logger::Terminate()
 	if (!initialized)
 	{
 		#ifdef SHOW_CONSOLE
-		printf("Logger::Terminate -- Warning -- Cannot terminate this module if it has not been initialized.\n");
+		printf("Logger::Terminate -- Warning -- Cannot terminate this module if it has not been initialized.\r\n");
 		#endif
 		mutex.unlock();
 		return;
@@ -176,11 +176,11 @@ void Logger::Terminate()
 	thread.join(); //Will block the caller thread and wait for WriteMessages to return.
 
 	#ifdef SHOW_CONSOLE
-	printf(GTUI_ESC_BG_GREEN GTUI_ESC_ENABLE_BOLD "Logger::Terminate -- Success -- logger terminated successfully.\n" GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD);
+	printf(GTUI_ESC_BG_GREEN GTUI_ESC_ENABLE_BOLD "Logger::Terminate -- Success -- logger terminated successfully.\r\n" GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD);
 	gtuiTerminate();
 	#endif
 
-	char* exitMessage = "Logger::Terminate -- Success -- logger terminated successfully.\n";
+	const char* exitMessage = "Logger::Terminate -- Success -- logger terminated successfully.\r\n";
 	fwrite(exitMessage, 1, strlen(exitMessage), fileOutput);
 
 	if (fileOutput)
@@ -199,7 +199,7 @@ void Logger::PushMessage(const std::string& caller, const std::string& message, 
 	if (!initialized)
 	{
 		#ifdef SHOW_CONSOLE
-		printf("Logger::PushMessage -- Error -- Cannot push a message if this module has not been initialized.\n");
+		printf("Logger::PushMessage -- Error -- Cannot push a message if this module has not been initialized.\r\n");
 		#endif
 		mutex.unlock();
 		return;

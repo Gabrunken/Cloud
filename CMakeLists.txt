@@ -67,11 +67,25 @@ ${CMAKE_CURRENT_SOURCE_DIR}/include
 ${CMAKE_CURRENT_SOURCE_DIR}/third-party
 ${CMAKE_CURRENT_SOURCE_DIR}/third-party/tracy)
 
+include(FetchContent)
+
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG        3.4
+)
+
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(glfw)
+
 set(LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS_DIR}/${ARCH_DIR}")
 target_link_directories(Cloud PRIVATE ${LIB_PATH})
 
 if (OS_DIR STREQUAL "win")
-    target_link_libraries(Cloud PRIVATE glfw3 opengl32 gdi32 user32 shell32)
+    target_link_libraries(Cloud PRIVATE glfw opengl32 gdi32 user32 shell32)
 else ()
-    target_link_libraries(Cloud PRIVATE glfw3)
+    target_link_libraries(Cloud PRIVATE glfw GL)
 endif ()
