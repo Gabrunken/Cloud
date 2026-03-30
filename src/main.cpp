@@ -8,6 +8,12 @@
 #include <GLFW/glfw3.h> //cross-platform window and input handling
 #include <tracy/Tracy.hpp> //profiler
 
+#ifdef CLOUD_EDITOR
+#include <editor/editor.hpp>
+#else
+#include <game/game.hpp>
+#endif
+
 #define LOGGER_FILE_PATH "log.txt"
 
 /*
@@ -15,13 +21,12 @@
 * The logger will be the first to be initialized, each other module can use safely its functions.
 * The modules will be terminated from last to first, so each one is able call log functions for its clean up stage.
 */
-#define INITIALIZED_LOGGER 0x00000001
-#define INITIALIZED_GLFW   0x00000002
+#define INITIALIZED_LOGGER 0b00000001
+#define INITIALIZED_GLFW   0b00000010
 
 static int32_t initializedModules;
 
 static bool Initialize(); //Returns false at the first module's initialization failure.
-static bool MainLoop(); //Returns true if the loop should continue.
 static void Terminate(); //Will only terminate the modules that were fully initialized from last to first.
 
 int main(int argc, char** argv)
@@ -48,14 +53,13 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	//Test logger
-	Logger::PushMessage("Main", "This is a fatal error", Logger::Fatal);
-	Logger::PushMessage("Main", "This is an error", Logger::Error);
-	Logger::PushMessage("Main", "This is a warning", Logger::Warning);
-	Logger::PushMessage("Main", "This is a note", Logger::Note);
-	Logger::PushMessage("Main", "This is a success", Logger::Success);
-		
-	while (MainLoop());
+#ifdef CLOUD_EDITOR
+	Logger::PushMessage("Main", "Editor not yet implemented", Logger::Fatal);
+#else
+	Game::InitializeWithoutEditor();
+	while (Game::RunWithoutEditor());
+	Game::TerminateWithoutEditor();
+#endif
 }
 
 bool Initialize()
@@ -67,12 +71,6 @@ bool Initialize()
 	initializedModules |= INITIALIZED_GLFW;
 
 	return true;
-}
-
-bool MainLoop()
-{
-	ZoneScopedN("Main Loop");
-	return false;
 }
 
 void Terminate()

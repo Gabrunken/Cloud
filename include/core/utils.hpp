@@ -10,3 +10,16 @@
 // Fallback for unknown compilers
 #define FORCE_INLINE inline
 #endif
+
+#include <core/logger.hpp>
+
+//Asserts the condition and pushes a message into the logger (it must be initialized)
+//All failed assertions will push a FATAL message.
+FORCE_INLINE void CloudAssert(bool condition, const std::string& caller, const std::string& message)
+{
+	if (!condition)
+	{
+		Logger::PushMessage(caller, "FAILED ASSERTION -- " + message, Logger::Fatal);
+		exit(1);
+	}
+}

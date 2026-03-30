@@ -86,11 +86,10 @@ static void WriteMessages()
 		}
 
 		formattedMessage.append(message.message);
-		formattedMessage.append(GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD);
 		formattedMessage.append("\r\n");
 
 		#ifdef SHOW_CONSOLE
-		printf("%s", formattedMessage.c_str());
+		printf("%s" GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD, formattedMessage.c_str());
 		#endif
 
 		fwrite(formattedMessage.c_str(), 1, formattedMessage.size(), fileOutput);
