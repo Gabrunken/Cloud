@@ -7,6 +7,7 @@
 #include <glad/glad.h> //opengl function loader
 #include <GLFW/glfw3.h> //cross-platform window and input handling
 #include <tracy/Tracy.hpp> //profiler
+#include <subsystems/renderer.hpp>
 
 #ifdef CLOUD_EDITOR
 #include <editor/editor.hpp>
@@ -15,14 +16,16 @@
 #endif
 
 #define LOGGER_FILE_PATH "log.txt"
+#define GRAPHICS_API GraphicsAPI::OpenGL
 
 /*
 * Initialization flags(in order of initialization)
 * The logger will be the first to be initialized, each other module can use safely its functions.
 * The modules will be terminated from last to first, so each one is able call log functions for its clean up stage.
 */
-#define INITIALIZED_LOGGER 0b00000001
-#define INITIALIZED_GLFW   0b00000010
+#define INITIALIZED_LOGGER   0b00000001
+#define INITIALIZED_GLFW     0b00000010
+#define INITIALIZED_RENDERER 0b00000100
 
 static int32_t initializedModules;
 
@@ -70,11 +73,15 @@ bool Initialize()
 	if (!glfwInit()) return false;
 	initializedModules |= INITIALIZED_GLFW;
 
+	if (!Renderer::Initialize(GRAPHICS_API)) return false;
+	initializedModules |= INITIALIZED_RENDERER;
+
 	return true;
 }
 
 void Terminate()
 {
+	if (initializedModules & INITIALIZED_RENDERER) Renderer::Terminate();
 	if (initializedModules & INITIALIZED_GLFW) glfwTerminate();
 	if (initializedModules & INITIALIZED_LOGGER) Logger::Terminate();
 }

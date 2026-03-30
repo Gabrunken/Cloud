@@ -1,5 +1,6 @@
 #pragma once
 #include <core/utils.hpp>
+#include <subsystems/renderer.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -54,9 +55,9 @@ namespace Game
 
 		glfwSetKeyCallback(window, KeyCallback);
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
 		glEnable(GL_DEPTH_TEST);
+
+		Renderer::SetBackgroundColor({ 0.23f, 0.32f, 0.75f, 1.0f });
 
 		_hasBeenInitialized = true;
 	}
@@ -65,7 +66,7 @@ namespace Game
 	{
 		CloudAssert(_hasBeenInitialized, "Game::RunWithoutEditor", "game has not been initialized");
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		Renderer::ClearBackground();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		return !glfwWindowShouldClose(window);
