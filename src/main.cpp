@@ -4,10 +4,12 @@
 
 #include <stdlib.h>
 #include <core/logger.hpp>
-#include <glad/glad.h> //opengl function loader
+#ifdef SHOW_CONSOLE
+#include <platform/console_signals.hpp>
+#endif
 #include <GLFW/glfw3.h> //cross-platform window and input handling
 #include <tracy/Tracy.hpp> //profiler
-#include <subsystems/renderer.hpp>
+#include <subsystems/render_interface.hpp>
 
 #ifdef CLOUD_EDITOR
 #include <editor/editor.hpp>
@@ -37,6 +39,10 @@ int main(int argc, char** argv)
 	tracy::SetThreadName("Main Thread");
 
 	atexit(Terminate); //Terminate will be automatically called when the main function returns.
+
+	#ifdef SHOW_CONSOLE
+	SetupSignalHandlers(); //Correctly terminate the program even when the console is trying to close it before proper clean up.
+	#endif
 
 	bool initializationResult = Initialize();
 	if (!initializationResult)

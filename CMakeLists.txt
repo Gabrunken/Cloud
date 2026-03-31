@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 project(Cloud)
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if (WIN32)
     set(OS_DIR "win")
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+elseif (LINUX)
     set(OS_DIR "linux")
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+elseif (APPLE)
     set(OS_DIR "macos")
 else ()
     message(FATAL_ERROR "Unknown OS: ${CMAKE_SYSTEM_NAME}")
@@ -23,6 +23,10 @@ endif ()
 
 message(STATUS "Building for: ${OS_DIR} / ${ARCH_DIR}")
 
+#Set both libraries and executables to be in the same path
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 file(GLOB_RECURSE MAIN_SOURCES #My code
     src/*.cpp
     src/*.c
@@ -32,6 +36,14 @@ file(GLOB_RECURSE MAIN_SOURCES #My code
 	third-party/*.h
 )
 
+#Now remove shared libraries from MAIN_SOURCES
+list(REMOVE_ITEM MAIN_SOURCES
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/opengl_renderer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/vulkan_renderer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/dx12_renderer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/metal_renderer.cpp"
+)
+
 file(GLOB THIRD_PARTY_SOURCES
 	third-party/tracy/TracyClient.cpp
 	third-party/*.cpp
@@ -39,6 +51,15 @@ file(GLOB THIRD_PARTY_SOURCES
 )
 
 add_executable(Cloud ${MAIN_SOURCES} ${THIRD_PARTY_SOURCES})
+
+set_target_properties(Cloud PROPERTIES #Set the working directory to be the executable path, for IDEs
+    VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:Cloud>"
+)
+
+target_compile_definitions(Cloud PRIVATE #Useful for loading shared libraries
+    SHARED_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"
+    SHARED_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"
+)
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${MAIN_SOURCES} ${THIRD_PARTY_SOURCES}) #Make them show in IDEs
 
@@ -62,6 +83,7 @@ if (TRACY_ENABLED)
 	target_compile_definitions(Cloud PRIVATE TRACY_ENABLED)
 endif ()
 
+#Global include directiories
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR}/include 
 ${CMAKE_CURRENT_SOURCE_DIR}/third-party
@@ -81,11 +103,58 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(glfw)
 
-#set(LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS_DIR}/${ARCH_DIR}")
-#target_link_directories(Cloud PRIVATE ${LIB_PATH})
-
-if (OS_DIR STREQUAL "win")
+if (WIN32)
     target_link_libraries(Cloud PRIVATE glfw opengl32 gdi32 user32 shell32)
 else ()
     target_link_libraries(Cloud PRIVATE glfw GL)
+endif ()
+
+### == RENDERERS == ###
+#Compile OpenGL for every system
+add_library(OpenGLRenderer SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/opengl_renderer.cpp)
+target_compile_definitions(OpenGLRenderer PRIVATE BUILD_RENDERER)
+
+#Compile vulkan for non MacOS systems
+if (NOT APPLE)
+	add_library(VulkanRenderer SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/vulkan_renderer.cpp)
+	target_compile_definitions(VulkanRenderer PRIVATE BUILD_RENDERER)
+endif ()
+
+#Compile DX12 for windows
+if (WIN32)
+	add_library(DX12Renderer SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/dx12_renderer.cpp)
+	target_compile_definitions(DX12Renderer PRIVATE BUILD_RENDERER)
+	target_link_libraries(DX12Renderer PRIVATE d3d12 dxgi)
+endif ()
+
+#Compile Metal for MacOS
+if (APPLE)
+	add_library(MetalRenderer SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/metal_renderer.cpp)
+	target_compile_definitions(MetalRenderer PRIVATE BUILD_RENDERER)
+	target_link_libraries(MetalRenderer PRIVATE "-framework Metal" "-framework Foundation")
+endif ()
+
+set_target_properties(Cloud OpenGLRenderer PROPERTIES 
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+if (TARGET VulkanRenderer)
+    set_target_properties(VulkanRenderer PROPERTIES 
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
+endif ()
+
+if (TARGET DX12Renderer)
+    set_target_properties(DX12Renderer PROPERTIES 
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
+endif ()
+
+if (TARGET MetalRenderer)
+    set_target_properties(MetalRenderer PROPERTIES 
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
 endif ()

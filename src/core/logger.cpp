@@ -147,7 +147,7 @@ bool Logger::Initialize(const std::string& outputFilePath)
 
 	#ifdef SHOW_CONSOLE
 	printf(GTUI_ESC_BG_GREEN GTUI_ESC_ENABLE_BOLD);
-	printf("%s", startupMessage);
+	printf("%s" GTUI_ESC_DISABLE_BOLD, startupMessage);
 	#endif
 
 	initialized = true;

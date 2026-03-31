@@ -1,12 +1,13 @@
 #pragma once
 #include <core/utils.hpp>
-#include <subsystems/renderer.hpp>
+#include <subsystems/render_interface.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 static bool _hasBeenInitialized = false;
 
 static GLFWwindow* window;
+static RenderInterface* renderer;
 
 //Some hard-coded values
 constexpr uint16_t windowWidth = 800, windowHeight = 600;
@@ -57,7 +58,7 @@ namespace Game
 
 		glEnable(GL_DEPTH_TEST);
 
-		Renderer::SetBackgroundColor({ 0.23f, 0.32f, 0.75f, 1.0f });
+		//Renderer::SetBackgroundColor({ 0.23f, 0.32f, 0.75f, 1.0f });
 
 		_hasBeenInitialized = true;
 	}
@@ -66,7 +67,7 @@ namespace Game
 	{
 		CloudAssert(_hasBeenInitialized, "Game::RunWithoutEditor", "game has not been initialized");
 
-		Renderer::ClearBackground();
+		//Renderer::ClearBackground();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		return !glfwWindowShouldClose(window);

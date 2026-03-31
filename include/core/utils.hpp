@@ -23,3 +23,11 @@ FORCE_INLINE void CloudAssert(bool condition, const std::string& caller, const s
 		exit(1);
 	}
 }
+
+#ifdef _WIN32
+	#define API_EXPORT __declspec(dllexport)
+	#define API_IMPORT __declspec(dllimport)
+#else
+	#define API_EXPORT __attribute__((visibility("default")))
+	#define API_IMPORT
+#endif
