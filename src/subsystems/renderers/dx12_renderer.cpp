@@ -33,3 +33,21 @@ extern "C" RENDERER_API RenderInterface* CreateRenderer(LogCallback callback)
 	logCallback = callback;
 	return new DX12Renderer();
 }
+
+extern "C" RENDERER_API void DestroyRenderer(RenderInterface* ptr)
+{
+	if (!ptr)
+	{
+		logCallback("DX12Renderer::DestroyRenderer", "the passed renderer was null", Logger::Fatal);
+		return;
+	}
+
+	DX12Renderer* renderer = dynamic_cast<DX12Renderer*>(ptr);
+	if (!renderer)
+	{
+		logCallback("DX12Renderer::DestroyRenderer", "the passed renderer is not an OpenGL Renderer, use the right function to delete it", Logger::Fatal);
+		return;
+	}
+
+	delete renderer;
+}

@@ -35,8 +35,8 @@ using LogCallback = void(*)(const std::string&, const std::string&, int);
 //This function will be overridden by each Renderer API, returning the correct Renderer.
 //Multiple renderers cannot be linked at the same runtime instance, an API change will
 //require a restart.
-extern "C" RENDERER_API RenderInterface* CreateRenderer(LogCallback callback);
 using CreateRendererFunc = RenderInterface* (*)(LogCallback);
+using DestroyRendererFunc = void (*)(RenderInterface*);
 
 namespace Renderer
 {

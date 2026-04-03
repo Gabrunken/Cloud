@@ -40,25 +40,13 @@ namespace Game
 	{
 		CloudAssert(!_hasBeenInitialized, "Game::InitializeWithoutEditor", "game already initialized");
 
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); //MacOS requires this
-#endif
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
 
 		window = glfwCreateWindow(windowWidth, windowHeight, "Game", NULL, NULL);
 		CloudAssert(window, "Game::InitializeWithoutEditor", "window creation failed");
 
-		glfwMakeContextCurrent(window);
-		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
 		glfwSetKeyCallback(window, KeyCallback);
-
-		glEnable(GL_DEPTH_TEST);
-
-		//Renderer::SetBackgroundColor({ 0.23f, 0.32f, 0.75f, 1.0f });
 
 		_hasBeenInitialized = true;
 	}
@@ -67,8 +55,6 @@ namespace Game
 	{
 		CloudAssert(_hasBeenInitialized, "Game::RunWithoutEditor", "game has not been initialized");
 
-		//Renderer::ClearBackground();
-		glfwSwapBuffers(window);
 		glfwPollEvents();
 		return !glfwWindowShouldClose(window);
 	}

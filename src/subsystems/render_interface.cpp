@@ -50,7 +50,7 @@ namespace Renderer
 
 		CreateRendererFunc func = reinterpret_cast<CreateRendererFunc>(symbol);
 		rendererInterface = func(reinterpret_cast<LogCallback>(Logger::PushMessage));
-
+		
 		Logger::PushMessage("Renderer::Initialize", "initialized successfully", Logger::Success);
 		_initialized = true;
 		return true;
@@ -66,7 +66,17 @@ namespace Renderer
 	{
 		CloudAssert(_initialized, "Renderer::Terminate", "has to be initialized");
 		
-		delete rendererInterface;
+		//Destroy renderer
+		void* symbol = GetLibrarySymbol(graphicsLib, "DestroyRenderer");
+		if (!symbol)
+		{
+			Logger::PushMessage("Renderer::Terminate", "failed to find the 'DestroyRenderer' symbol inside the renderer shared library", Logger::Fatal);
+			return;
+		}
+
+		DestroyRendererFunc func = reinterpret_cast<DestroyRendererFunc>(symbol);
+		func(rendererInterface);
+		rendererInterface = nullptr;
 
 		//Free library
 		UnloadSharedLibrary(graphicsLib);

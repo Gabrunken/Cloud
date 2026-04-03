@@ -113,25 +113,27 @@ endif ()
 #Compile OpenGL for every system
 add_library(OpenGLRenderer SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/opengl_renderer.cpp)
 target_compile_definitions(OpenGLRenderer PRIVATE BUILD_RENDERER)
+target_link_libraries(OpenGLRenderer PRIVATE glfw)
 
 #Compile vulkan for non MacOS systems
 if (NOT APPLE)
 	add_library(VulkanRenderer SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/vulkan_renderer.cpp)
 	target_compile_definitions(VulkanRenderer PRIVATE BUILD_RENDERER)
+	target_link_libraries(VulkanRenderer PRIVATE glfw)
 endif ()
 
 #Compile DX12 for windows
 if (WIN32)
 	add_library(DX12Renderer SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/dx12_renderer.cpp)
 	target_compile_definitions(DX12Renderer PRIVATE BUILD_RENDERER)
-	target_link_libraries(DX12Renderer PRIVATE d3d12 dxgi)
+	target_link_libraries(DX12Renderer PRIVATE d3d12 dxgi glfw)
 endif ()
 
 #Compile Metal for MacOS
 if (APPLE)
 	add_library(MetalRenderer SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/metal_renderer.cpp)
 	target_compile_definitions(MetalRenderer PRIVATE BUILD_RENDERER)
-	target_link_libraries(MetalRenderer PRIVATE "-framework Metal" "-framework Foundation")
+	target_link_libraries(MetalRenderer PRIVATE "-framework Metal" "-framework Foundation" "-framework glfw")
 endif ()
 
 set_target_properties(Cloud OpenGLRenderer PROPERTIES 
