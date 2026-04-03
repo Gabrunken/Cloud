@@ -86,12 +86,11 @@ static void WriteMessages()
 		}
 
 		formattedMessage.append(message.message);
-		formattedMessage.append("\r\n");
-
 		#ifdef SHOW_CONSOLE
-		printf("%s" GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD, formattedMessage.c_str());
+		printf("%s" GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD "\r\n", formattedMessage.c_str());
 		#endif
 
+		formattedMessage.append("\r\n");
 		fwrite(formattedMessage.c_str(), 1, formattedMessage.size(), fileOutput);
 	}
 }
@@ -136,18 +135,24 @@ bool Logger::Initialize(const std::string& outputFilePath)
 
 	thread = std::thread(WriteMessages);
 
-	const char* startupMessage =
+	const char* startupMessageConsole =
+		GTUI_ESC_BG_GREEN "******************" GTUI_ESC_BG_DEFAULT "\r\n"
+		GTUI_ESC_BG_GREEN "*                *" GTUI_ESC_BG_DEFAULT "\r\n"
+		GTUI_ESC_BG_GREEN "* LOGGER STARTED *" GTUI_ESC_BG_DEFAULT "\r\n"
+		GTUI_ESC_BG_GREEN "*                *" GTUI_ESC_BG_DEFAULT "\r\n"
+		GTUI_ESC_BG_GREEN "******************" GTUI_ESC_BG_DEFAULT "\r\n";
+
+	const char* startupMessageFile =
 		"******************\r\n"
 		"*                *\r\n"
 		"* LOGGER STARTED *\r\n"
 		"*                *\r\n"
 		"******************\r\n";
 
-	fwrite(startupMessage, 1, strlen(startupMessage), fileOutput);
+	fwrite(startupMessageFile, 1, strlen(startupMessageFile), fileOutput);
 
 	#ifdef SHOW_CONSOLE
-	printf(GTUI_ESC_BG_GREEN GTUI_ESC_ENABLE_BOLD);
-	printf("%s" GTUI_ESC_DISABLE_BOLD, startupMessage);
+	printf(GTUI_ESC_ENABLE_BOLD "%s" GTUI_ESC_DISABLE_BOLD, startupMessageConsole);
 	#endif
 
 	initialized = true;
@@ -175,7 +180,7 @@ void Logger::Terminate()
 	thread.join(); //Will block the caller thread and wait for WriteMessages to return.
 
 	#ifdef SHOW_CONSOLE
-	printf(GTUI_ESC_BG_GREEN GTUI_ESC_ENABLE_BOLD "Logger::Terminate -- Success -- logger terminated successfully.\r\n" GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD);
+	printf(GTUI_ESC_BG_GREEN GTUI_ESC_ENABLE_BOLD "Logger::Terminate -- Success -- logger terminated successfully." GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD "\r\n");
 	gtuiTerminate();
 	#endif
 

@@ -17,7 +17,7 @@ LibraryHandle LoadSharedLibrary(const std::string& path)
     if (!handle)
     {
         #ifdef SHOW_CONSOLE
-        std::cerr << "Could not load dll at path: " << path << std::endl;
+        std::cerr << "Could not load dll at path: " << path << "\r\n";
         #endif
         return nullptr;
     }
@@ -30,7 +30,7 @@ LibraryHandle LoadSharedLibrary(const std::string& path)
     if (!handle)
     {
         #ifdef SHOW_CONSOLE
-        std::cerr << "Could not load shared library at path: " << path << "\nDetails: " << dlerror() << std::endl;
+        std::cerr << "Could not load shared library at path: " << path << "\r\nDetails: " << dlerror() << "\r\n";
         #endif
     }
 
@@ -43,7 +43,7 @@ void* GetLibrarySymbol(LibraryHandle handle, const std::string& symbolName)
     if (!handle)
     {
         #ifdef SHOW_CONSOLE
-        std::cerr << "Failed to get a shared library symbol: the passed handle was null\n";
+        std::cerr << "Failed to get a shared library symbol: the passed handle was null\r\n";
         #endif
         return nullptr;
     }
@@ -51,7 +51,7 @@ void* GetLibrarySymbol(LibraryHandle handle, const std::string& symbolName)
     #ifdef _WIN32
     return reinterpret_cast<void*>(GetProcAddress(static_cast<HMODULE>(handle), symbolName.c_str()));
     #else
-    return dlsym(handle, symbol.c_str());
+    return dlsym(handle, symbolName.c_str());
     #endif
 }
 
@@ -60,7 +60,7 @@ void UnloadSharedLibrary(LibraryHandle handle)
     if (!handle)
     {
         #ifdef SHOW_CONSOLE
-        std::cerr << "Failed to unload a shared library, the passed handle was null\n";
+        std::cerr << "Failed to unload a shared library, the passed handle was null\r\n";
         #endif
         return;
     }

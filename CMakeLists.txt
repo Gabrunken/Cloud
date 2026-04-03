@@ -85,7 +85,7 @@ endif ()
 
 #Global include directiories
 include_directories(
-${CMAKE_CURRENT_SOURCE_DIR}/include 
+${CMAKE_CURRENT_SOURCE_DIR}/include
 ${CMAKE_CURRENT_SOURCE_DIR}/third-party
 ${CMAKE_CURRENT_SOURCE_DIR}/third-party/tracy)
 
@@ -136,27 +136,33 @@ if (APPLE)
 	target_link_libraries(MetalRenderer PRIVATE "-framework Metal" "-framework Foundation" "-framework glfw")
 endif ()
 
-set_target_properties(Cloud OpenGLRenderer PROPERTIES 
+set_target_properties(Cloud OpenGLRenderer PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 if (TARGET VulkanRenderer)
-    set_target_properties(VulkanRenderer PROPERTIES 
+    set_target_properties(VulkanRenderer PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
 endif ()
 
 if (TARGET DX12Renderer)
-    set_target_properties(DX12Renderer PROPERTIES 
+    set_target_properties(DX12Renderer PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
 endif ()
 
 if (TARGET MetalRenderer)
-    set_target_properties(MetalRenderer PROPERTIES 
+    set_target_properties(MetalRenderer PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
 endif ()
+
+#Set the runtime path to be the executable path
+set_target_properties(Cloud PROPERTIES
+    BUILD_RPATH "$ORIGIN"
+    INSTALL_RPATH "$ORIGIN"
+)

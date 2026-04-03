@@ -1,4 +1,3 @@
-#pragma once
 #include <core/utils.hpp>
 #include <subsystems/render_interface.hpp>
 #include <glad/glad.h>
