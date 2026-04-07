@@ -1,7 +1,12 @@
 #include <subsystems/render_interface.hpp>
 #include <core/logger.hpp>
 
-static RenderContext currentRenderingContext;
+class DirectX12RenderContext : public IRenderContext
+{
+
+};
+
+static DirectX12RenderContext currentRenderingContext;
 static LogCallback logCallback;
 static GraphicsAPILoader loaderCallback;
 
@@ -24,6 +29,11 @@ public:
 	}
 
 	void ClearBackground()
+	{
+
+	}
+
+	void Present()
 	{
 
 	}

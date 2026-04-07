@@ -3,7 +3,7 @@
 #include <platform/shared_library.hpp>
 #include <GLFW/glfw3.h>
 #include <core/application.hpp>
-//#include <glad/glad.h>
+#include <core/window.hpp>
 
 static RenderInterface* rendererInterface;
 static LibraryHandle graphicsLib = nullptr;
@@ -24,24 +24,21 @@ namespace Renderer
 		{
 			const StartupSettings& settings = Application::GetSettings();
 
-			if (graphicsAPI == GraphicsAPI::OpenGL)
-			{
-				glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, settings.openGLMajorVersionRequired);
-				glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, settings.openGLMinorVersionRequired);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, settings.openGLMajorVersionRequired);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, settings.openGLMinorVersionRequired);
 
-				#ifdef __APPLE__
-				glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-				#endif
-				glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-			}
-
-			else
-			{
-				glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-			}
+			#ifdef __APPLE__
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+			#endif
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);	
 		}
 
-		GLFWwindow* window = glfwCreateWindow(400, 400, "no title", nullptr, nullptr);
+		else
+		{
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		}
+
+		GLFWwindow* window = Window::CreateWindow("no title", 1, 1);
 		if (!window) return false;
 
 		//Load library		

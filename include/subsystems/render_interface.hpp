@@ -10,11 +10,11 @@
 	#define RENDERER_API API_IMPORT
 #endif
 
-struct RenderContext
+class IRenderContext
 {
+public:
 	Color backgroundColor;
-
-	RenderContext() = default;
+	//...
 };
 
 class RenderInterface

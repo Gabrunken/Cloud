@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <core/application.hpp>
 #include <math.h>
+#include <core/window.hpp>
 
 static bool _hasBeenInitialized = false;
 
@@ -46,9 +47,9 @@ namespace Game
 	{
 		CloudAssert(!_hasBeenInitialized, "Game::InitializeWithoutEditor", "game already initialized");
 
-		window = glfwGetCurrentContext();
-		glfwSetWindowSize(window, 800, 600);
-		glfwSetWindowTitle(window, "Game");
+		Window::RenameWindow("no title", "Game");
+		window = Window::GetWindow("Game");
+		glfwSetWindowSize(window, 1000, 600);
 
 		glfwSetKeyCallback(window, KeyCallback);
 		glfwSetErrorCallback(GLFWErrorCallback);
@@ -66,10 +67,10 @@ namespace Game
 		double time = glfwGetTime();
 
 		renderer->ClearBackground();
-		if (Application::GetSettings().graphicsAPI == GraphicsAPI::OpenGL)
-			glfwSwapBuffers(window);
-		else
-			renderer->Present();
+		
+		if (Application::GetSettings().graphicsAPI == GraphicsAPI::OpenGL) { glfwSwapBuffers(window); }
+		else { renderer->Present(); }
+		
 		glfwPollEvents();
 		return !glfwWindowShouldClose(window);
 	}

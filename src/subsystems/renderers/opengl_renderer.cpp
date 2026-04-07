@@ -2,7 +2,16 @@
 #include <core/logger.hpp>
 #include <glad/glad.h>
 
-static RenderContext currentRenderingContext;
+class OpenGLRenderContext : public IRenderContext
+{
+public:
+	const char* vendor;
+	const char* renderer;
+	const char* version;
+	const char* glslVers;
+};
+
+static OpenGLRenderContext currentRenderingContext;
 static LogCallback logCallback;
 static GraphicsAPILoader loaderCallback;
 
@@ -13,6 +22,22 @@ public:
 	{
 		//Load opengl with glad
 		gladLoadGLLoader((GLADloadproc)loaderCallback);
+
+		currentRenderingContext.vendor = (const char*)glGetString(GL_VENDOR);
+		currentRenderingContext.renderer = (const char*)glGetString(GL_RENDERER);
+		currentRenderingContext.version = (const char*)glGetString(GL_VERSION);
+		currentRenderingContext.glslVers = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+		std::string detailString = "renderer details:\n\tVendor: ";
+		detailString.append(currentRenderingContext.vendor);
+		detailString.append("\n\tRenderer: ");
+		detailString.append(currentRenderingContext.renderer);
+		detailString.append("\n\tVersion: ");
+		detailString.append(currentRenderingContext.version);
+		detailString.append("\n\tGLSL Version: ");
+		detailString.append(currentRenderingContext.glslVers);
+
+		logCallback("OpenGLRenderer::Constructor", detailString, Logger::Note);
 
 		logCallback("OpenGLRenderer::Constructor", "renderer initialized", Logger::Success);
 	}
