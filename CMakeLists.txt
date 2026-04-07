@@ -113,7 +113,11 @@ endif ()
 
 ### == RENDERERS == ###
 #Compile OpenGL for every system
-add_library(OpenGLRenderer SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/opengl_renderer.cpp)
+add_library(OpenGLRenderer SHARED 
+${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/opengl_renderer.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/third-party/glad.c
+)
+
 target_compile_definitions(OpenGLRenderer PRIVATE BUILD_RENDERER)
 
 #Compile vulkan everywhere but non on macOS

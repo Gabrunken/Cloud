@@ -1,8 +1,10 @@
 #include <subsystems/render_interface.hpp>
 #include <core/utils.hpp>
 #include <platform/shared_library.hpp>
+#include <GLFW/glfw3.h>
+#include <core/application.hpp>
+//#include <glad/glad.h>
 
-static GraphicsAPI currentGraphicsAPI; //This should only be initialized one time and left as it is for the whole runtime.
 static RenderInterface* rendererInterface;
 static LibraryHandle graphicsLib = nullptr;
 static bool _initialized = false;
@@ -12,13 +14,43 @@ namespace Renderer
 	bool Initialize(GraphicsAPI graphicsAPI)
 	{
 		CloudAssert(!_initialized, "Renderer::Initialize", "already initialized");
-		currentGraphicsAPI = graphicsAPI;
+
+		void* apiLoader = nullptr;
+
+		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+		
+		//Quick OpenGL check for glfw
+		if (graphicsAPI == GraphicsAPI::OpenGL)
+		{
+			const StartupSettings& settings = Application::GetSettings();
+
+			if (graphicsAPI == GraphicsAPI::OpenGL)
+			{
+				glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, settings.openGLMajorVersionRequired);
+				glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, settings.openGLMinorVersionRequired);
+
+				#ifdef __APPLE__
+				glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+				#endif
+				glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+			}
+
+			else
+			{
+				glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+			}
+		}
+
+		GLFWwindow* window = glfwCreateWindow(400, 400, "no title", nullptr, nullptr);
+		if (!window) return false;
 
 		//Load library		
 		switch (graphicsAPI)
 		{
 		case GraphicsAPI::OpenGL:
 			graphicsLib = LoadSharedLibrary(SHARED_LIB_PREFIX "OpenGLRenderer" SHARED_LIB_SUFFIX);
+			apiLoader = glfwGetProcAddress;
+			glfwMakeContextCurrent(window);
 			break;
 		case GraphicsAPI::Vulkan:
 			graphicsLib = LoadSharedLibrary(SHARED_LIB_PREFIX "VulkanRenderer" SHARED_LIB_SUFFIX);
@@ -49,7 +81,7 @@ namespace Renderer
 		}
 
 		CreateRendererFunc func = reinterpret_cast<CreateRendererFunc>(symbol);
-		rendererInterface = func(reinterpret_cast<LogCallback>(Logger::PushMessage));
+		rendererInterface = func(reinterpret_cast<LogCallback>(Logger::PushMessage), reinterpret_cast<GraphicsAPILoader>(apiLoader));
 		
 		Logger::PushMessage("Renderer::Initialize", "initialized successfully", Logger::Success);
 		_initialized = true;

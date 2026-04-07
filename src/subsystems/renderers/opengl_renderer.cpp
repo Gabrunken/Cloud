@@ -4,13 +4,15 @@
 
 static RenderContext currentRenderingContext;
 static LogCallback logCallback;
+static GraphicsAPILoader loaderCallback;
 
 class OpenGLRenderer : public RenderInterface
 {
 public:
 	OpenGLRenderer()
 	{
-		
+		//Load opengl with glad
+		gladLoadGLLoader((GLADloadproc)loaderCallback);
 
 		logCallback("OpenGLRenderer::Constructor", "renderer initialized", Logger::Success);
 	}
@@ -22,19 +24,25 @@ public:
 
 	void SetBackgroundColor(const Color& color)
 	{
-		//glClearColor(color.r, color.g, color.b, color.a);
+		glClearColor(color.r, color.g, color.b, color.a);
 		currentRenderingContext.backgroundColor = color;
 	}
 
 	void ClearBackground()
 	{
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
+	void Present()
+	{
+
 	}
 };
 
-extern "C" RENDERER_API RenderInterface* CreateRenderer(LogCallback callback)
+extern "C" RENDERER_API RenderInterface* CreateRenderer(LogCallback log, GraphicsAPILoader loader)
 {
-	logCallback = callback;
+	logCallback = log;
+	loaderCallback = loader;
 	return new OpenGLRenderer();
 }
  

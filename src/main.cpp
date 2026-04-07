@@ -17,8 +17,9 @@
 #include <game/game.hpp>
 #endif
 
-#define LOGGER_FILE_PATH "log.txt"
-#define GRAPHICS_API GraphicsAPI::OpenGL
+#include <core/application.hpp>
+
+#define SETTINGS_FILE_PATH "settings.txt"
 
 /*
 * Initialization flags(in order of initialization)
@@ -73,13 +74,15 @@ int main(int argc, char** argv)
 
 bool Initialize()
 {
-	if (!Logger::Initialize(LOGGER_FILE_PATH)) return false;
+	if (!Application::Initialize(SETTINGS_FILE_PATH)) exit(1);
+
+	if (!Logger::Initialize(Application::GetSettings().loggerFilePath)) return false;
 	initializedModules |= INITIALIZED_LOGGER;
 
 	if (!glfwInit()) return false;
 	initializedModules |= INITIALIZED_GLFW;
 
-	if (!Renderer::Initialize(GRAPHICS_API)) return false;
+	if (!Renderer::Initialize(Application::GetSettings().graphicsAPI)) return false;
 	initializedModules |= INITIALIZED_RENDERER;
 
 	return true;

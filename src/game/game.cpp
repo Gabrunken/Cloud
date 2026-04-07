@@ -2,6 +2,8 @@
 #include <subsystems/render_interface.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <core/application.hpp>
+#include <math.h>
 
 static bool _hasBeenInitialized = false;
 
@@ -35,17 +37,24 @@ namespace Game
 
 	}
 
+	void GLFWErrorCallback(int error, const char* description)
+	{
+		Logger::PushMessage("Game::GLFWErrorCallback", description, Logger::Error);
+	}
+
 	void InitializeWithoutEditor()
 	{
 		CloudAssert(!_hasBeenInitialized, "Game::InitializeWithoutEditor", "game already initialized");
 
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
-
-		window = glfwCreateWindow(windowWidth, windowHeight, "Game", NULL, NULL);
-		CloudAssert(window, "Game::InitializeWithoutEditor", "window creation failed");
+		window = glfwGetCurrentContext();
+		glfwSetWindowSize(window, 800, 600);
+		glfwSetWindowTitle(window, "Game");
 
 		glfwSetKeyCallback(window, KeyCallback);
+		glfwSetErrorCallback(GLFWErrorCallback);
+
+		renderer = &Renderer::GetRenderer();
+		renderer->SetBackgroundColor({1.0f, 1.0f, 1.0f, 1.0f});
 
 		_hasBeenInitialized = true;
 	}
@@ -54,6 +63,13 @@ namespace Game
 	{
 		CloudAssert(_hasBeenInitialized, "Game::RunWithoutEditor", "game has not been initialized");
 
+		double time = glfwGetTime();
+
+		renderer->ClearBackground();
+		if (Application::GetSettings().graphicsAPI == GraphicsAPI::OpenGL)
+			glfwSwapBuffers(window);
+		else
+			renderer->Present();
 		glfwPollEvents();
 		return !glfwWindowShouldClose(window);
 	}

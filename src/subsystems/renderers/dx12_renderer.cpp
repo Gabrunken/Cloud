@@ -3,6 +3,7 @@
 
 static RenderContext currentRenderingContext;
 static LogCallback logCallback;
+static GraphicsAPILoader loaderCallback;
 
 class DX12Renderer : public RenderInterface
 {
@@ -28,9 +29,10 @@ public:
 	}
 };
 
-extern "C" RENDERER_API RenderInterface* CreateRenderer(LogCallback callback)
+extern "C" RENDERER_API RenderInterface* CreateRenderer(LogCallback log, GraphicsAPILoader loader)
 {
-	logCallback = callback;
+	logCallback = log;
+	loaderCallback = loader;
 	return new DX12Renderer();
 }
 
