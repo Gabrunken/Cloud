@@ -24,8 +24,8 @@ namespace Renderer
 		{
 			const StartupSettings& settings = Application::GetSettings();
 
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, settings.openGLMajorVersionRequired);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, settings.openGLMinorVersionRequired);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, settings.openGLMajorVersionRequested);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, settings.openGLMinorVersionRequested);
 
 			#ifdef __APPLE__
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -41,6 +41,10 @@ namespace Renderer
 		GLFWwindow* window = Window::CreateWindow("no title", 1, 1);
 		if (!window)
 		{
+			//If the problem was a too high api version, consider a possible
+			//fallback to a less recent, but still not below the Cloud requirements, renderer version.
+			//Then remember to change the currently used api version in the global settings
+
 			Logger::PushMessage("Renderer::Initialize", "failed to create the main window", Logger::Fatal);
 			return false;
 		}

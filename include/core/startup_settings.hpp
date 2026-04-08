@@ -2,6 +2,15 @@
 #include <core/graphics_api.hpp>
 #include <string>
 
+#define SETTINGS_FILE_PATH "settings.txt"
+
+//If some properties are not specified in the settings file, these ones are used.
+#define DEFAULT_LOG_FILE_PATH "log.txt"
+#define DEFAULT_GRAPHICS_API GraphicsAPI::OpenGL
+#define DEFAULT_OPENGL_MAJOR 3
+#define DEFAULT_OPENGL_MINOR 3
+#define DEFAULT_UI_STYLE UIStyle::ImGuiClassic
+
 enum class UIStyle
 {
     ImGuiClassic,
@@ -12,10 +21,11 @@ enum class UIStyle
 struct StartupSettings
 {
 public:
-    std::string loggerFilePath = "log.txt";
-    GraphicsAPI graphicsAPI = GraphicsAPI::OpenGL;
-    uint8_t openGLMajorVersionRequired = 3, openGLMinorVersionRequired = 3;
-    UIStyle imGuiStyle = UIStyle::ImGuiClassic;
+    std::string loggerFilePath = DEFAULT_LOG_FILE_PATH;
+    GraphicsAPI graphicsAPI = DEFAULT_GRAPHICS_API;
+    //Note: this is the version requested, not necessarily the used one. A fallback to an older version might've happened.
+    uint8_t openGLMajorVersionRequested = DEFAULT_OPENGL_MAJOR, openGLMinorVersionRequested = DEFAULT_OPENGL_MINOR;
+    UIStyle imGuiStyle = DEFAULT_UI_STYLE;
 
     StartupSettings() = default;
 };

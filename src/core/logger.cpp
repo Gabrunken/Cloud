@@ -72,12 +72,12 @@ static void WriteMessages()
 			formattedMessage.append("Warning -- ");
 			break;
 		case Logger::Note:
-			//printf(GTUI_ESC_BG_DEFAULT); //No need
+			printf(GTUI_ESC_FG_GREEN);
 			formattedMessage.append("Note -- ");
 			break;
 		case Logger::Success:
 			#ifdef SHOW_CONSOLE
-			printf(GTUI_ESC_BG_GREEN);
+			printf(GTUI_ESC_BG_BLUE);
 			#endif
 			formattedMessage.append("Success -- ");
 			break;
@@ -87,7 +87,7 @@ static void WriteMessages()
 
 		formattedMessage.append(message.message);
 		#ifdef SHOW_CONSOLE
-		printf("%s" GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD "\r\n", formattedMessage.c_str());
+		printf("%s" GTUI_ESC_BG_DEFAULT GTUI_ESC_FG_DEFAULT GTUI_ESC_DISABLE_BOLD "\r\n", formattedMessage.c_str());
 		#endif
 
 		formattedMessage.append("\r\n");
@@ -137,11 +137,11 @@ bool Logger::Initialize(const std::string& outputFilePath)
 
 #ifdef SHOW_CONSOLE
 	const char* startupMessageConsole =
-		GTUI_ESC_BG_GREEN "******************" GTUI_ESC_BG_DEFAULT "\r\n"
-		GTUI_ESC_BG_GREEN "*                *" GTUI_ESC_BG_DEFAULT "\r\n"
-		GTUI_ESC_BG_GREEN "* LOGGER STARTED *" GTUI_ESC_BG_DEFAULT "\r\n"
-		GTUI_ESC_BG_GREEN "*                *" GTUI_ESC_BG_DEFAULT "\r\n"
-		GTUI_ESC_BG_GREEN "******************" GTUI_ESC_BG_DEFAULT "\r\n";
+		GTUI_ESC_BG_BRIGHT_GREEN "******************" GTUI_ESC_BG_DEFAULT "\r\n"
+		GTUI_ESC_BG_BRIGHT_GREEN "*                *" GTUI_ESC_BG_DEFAULT "\r\n"
+		GTUI_ESC_BG_BRIGHT_GREEN "* LOGGER STARTED *" GTUI_ESC_BG_DEFAULT "\r\n"
+		GTUI_ESC_BG_BRIGHT_GREEN "*                *" GTUI_ESC_BG_DEFAULT "\r\n"
+		GTUI_ESC_BG_BRIGHT_GREEN "******************" GTUI_ESC_BG_DEFAULT "\r\n";
 #endif
 
 	const char* startupMessageFile =
@@ -182,7 +182,7 @@ void Logger::Terminate()
 	thread.join(); //Will block the caller thread and wait for WriteMessages to return.
 
 	#ifdef SHOW_CONSOLE
-	printf(GTUI_ESC_BG_GREEN GTUI_ESC_ENABLE_BOLD "Logger::Terminate -- Success -- logger terminated successfully." GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD "\r\n");
+	printf(GTUI_ESC_BG_BRIGHT_GREEN GTUI_ESC_ENABLE_BOLD "Logger::Terminate -- Success -- logger terminated successfully." GTUI_ESC_BG_DEFAULT GTUI_ESC_DISABLE_BOLD "\r\n");
 	gtuiTerminate();
 	#endif
 

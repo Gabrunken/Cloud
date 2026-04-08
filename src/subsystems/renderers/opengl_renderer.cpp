@@ -5,10 +5,10 @@
 class OpenGLRenderContext : public IRenderContext
 {
 public:
-	const char* vendor;
-	const char* renderer;
-	const char* version;
-	const char* glslVers;
+	const char* vendor = "null";
+	const char* renderer = "null";
+	const char* version = "null";
+	const char* glslVers = "null";
 };
 
 static OpenGLRenderContext currentRenderingContext;

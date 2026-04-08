@@ -106,11 +106,6 @@ namespace Game
 
 	}
 
-	static void GLFWErrorCallback(int error, const char* description)
-	{
-		Logger::PushMessage("Game::GLFWErrorCallback", description, Logger::Error);
-	}
-
 	void InitializeWithoutEditor()
 	{
 		CloudAssert(!_hasBeenInitialized, "Game::InitializeWithoutEditor", "game already initialized");
@@ -124,7 +119,6 @@ namespace Game
 		ImGui_ImplGlfw_InitForOther(window, true);
 
 		glfwSetKeyCallback(window, KeyCallback);
-		glfwSetErrorCallback(GLFWErrorCallback);
 
 		renderer = &Renderer::GetRenderer();
 		renderer->SetBackgroundColor({1.001 /*Gets fully transparent otherwise...*/, 1.0, 1.0, 1.0});
