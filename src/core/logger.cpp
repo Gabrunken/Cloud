@@ -135,12 +135,14 @@ bool Logger::Initialize(const std::string& outputFilePath)
 
 	thread = std::thread(WriteMessages);
 
+#ifdef SHOW_CONSOLE
 	const char* startupMessageConsole =
 		GTUI_ESC_BG_GREEN "******************" GTUI_ESC_BG_DEFAULT "\r\n"
 		GTUI_ESC_BG_GREEN "*                *" GTUI_ESC_BG_DEFAULT "\r\n"
 		GTUI_ESC_BG_GREEN "* LOGGER STARTED *" GTUI_ESC_BG_DEFAULT "\r\n"
 		GTUI_ESC_BG_GREEN "*                *" GTUI_ESC_BG_DEFAULT "\r\n"
 		GTUI_ESC_BG_GREEN "******************" GTUI_ESC_BG_DEFAULT "\r\n";
+#endif
 
 	const char* startupMessageFile =
 		"******************\r\n"
