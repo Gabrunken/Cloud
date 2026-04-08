@@ -127,7 +127,7 @@ namespace Game
 		glfwSetErrorCallback(GLFWErrorCallback);
 
 		renderer = &Renderer::GetRenderer();
-		renderer->SetBackgroundColor({1.0f, 1.0f, 1.0f, 1.0f});
+		renderer->SetBackgroundColor({1.001 /*Gets fully transparent otherwise...*/, 1.0, 1.0, 1.0});
 
 		_hasBeenInitialized = true;
 	}

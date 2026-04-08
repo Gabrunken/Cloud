@@ -13,7 +13,7 @@
 class IRenderContext
 {
 public:
-	Color backgroundColor;
+	Color backgroundColor{};
 	//...
 };
 
