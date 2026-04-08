@@ -39,7 +39,11 @@ namespace Renderer
 		}
 
 		GLFWwindow* window = Window::CreateWindow("no title", 1, 1);
-		if (!window) return false;
+		if (!window)
+		{
+			Logger::PushMessage("Renderer::Initialize", "failed to create the main window", Logger::Fatal);
+			return false;
+		}
 
 		//Load library		
 		switch (graphicsAPI)

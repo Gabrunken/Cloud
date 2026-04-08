@@ -49,6 +49,8 @@ public:
 
 	void SetBackgroundColor(const Color& color)
 	{
+		if (currentRenderingContext.backgroundColor == color)
+			return;
 		glClearColor(color.r, color.g, color.b, color.a);
 		currentRenderingContext.backgroundColor = color;
 	}

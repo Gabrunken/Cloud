@@ -5,6 +5,10 @@
 #include <core/application.hpp>
 #include <math.h>
 #include <core/window.hpp>
+#include <tracy/Tracy.hpp>
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 
 static bool _hasBeenInitialized = false;
 
@@ -13,6 +17,8 @@ static RenderInterface* renderer;
 
 //Some hard-coded values
 constexpr uint16_t windowWidth = 800, windowHeight = 600;
+
+static const StartupSettings* settings;
 
 namespace Game
 {
@@ -33,12 +39,74 @@ namespace Game
 	}
 #else
 
+	static void ImGuiPass()
+	{
+		switch (settings->graphicsAPI)
+		{
+		case GraphicsAPI::OpenGL:
+			ImGui_ImplOpenGL3_NewFrame();
+			break;
+		case GraphicsAPI::Vulkan:
+			break;
+		case GraphicsAPI::DirectX12:
+			break;
+		case GraphicsAPI::Metal:
+			break;
+		default:
+			return;
+		}
+
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+#pragma region Test menu
+		ImGui::Begin("Test menu");
+		ImGui::Text("Statistics");
+		ImGui::Text("Performance: %.1f FPS (%.3f ms/frame)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
+
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		static Color bgCol;
+		if (ImGui::ColorEdit4("Clear color", (float*)&bgCol))
+		{
+			renderer->SetBackgroundColor(bgCol);
+		}
+		
+		static bool windowDecorations = true;
+		if (ImGui::Checkbox("Window decorations", &windowDecorations))
+		{
+			glfwSetWindowAttrib(window, GLFW_DECORATED, windowDecorations);
+		}
+		
+		ImGui::End();
+#pragma endregion
+
+		ImGui::Render();
+
+		switch (settings->graphicsAPI)
+		{
+		case GraphicsAPI::OpenGL:
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			break;
+		case GraphicsAPI::Vulkan:
+			break;
+		case GraphicsAPI::DirectX12:
+			break;
+		case GraphicsAPI::Metal:
+			break;
+		default:
+			return;
+		}
+	}
+
 	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 
 	}
 
-	void GLFWErrorCallback(int error, const char* description)
+	static void GLFWErrorCallback(int error, const char* description)
 	{
 		Logger::PushMessage("Game::GLFWErrorCallback", description, Logger::Error);
 	}
@@ -47,9 +115,13 @@ namespace Game
 	{
 		CloudAssert(!_hasBeenInitialized, "Game::InitializeWithoutEditor", "game already initialized");
 
+		settings = &Application::GetSettings();
+
 		Window::RenameWindow("no title", "Game");
 		window = Window::GetWindow("Game");
 		glfwSetWindowSize(window, 1000, 600);
+
+		ImGui_ImplGlfw_InitForOther(window, true);
 
 		glfwSetKeyCallback(window, KeyCallback);
 		glfwSetErrorCallback(GLFWErrorCallback);
@@ -62,15 +134,18 @@ namespace Game
 
 	bool RunWithoutEditor()
 	{
+		ZoneScopedN("Main Loop")
 		CloudAssert(_hasBeenInitialized, "Game::RunWithoutEditor", "game has not been initialized");
 
 		double time = glfwGetTime();
 
 		renderer->ClearBackground();
 		
+		ImGuiPass();
+
 		if (Application::GetSettings().graphicsAPI == GraphicsAPI::OpenGL) { glfwSwapBuffers(window); }
 		else { renderer->Present(); }
-		
+
 		glfwPollEvents();
 		return !glfwWindowShouldClose(window);
 	}

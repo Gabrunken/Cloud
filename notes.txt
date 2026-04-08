@@ -1,0 +1,10 @@
+A settings.txt file can be created in the executable directory, to set some initial values
+before launching the app.
+They must be formatted this way (no particular order):
+<property> - <value>
+	LoggerFilePath - <path>
+	GraphicsAPI - <OpenGL/Vulkan/DirectX12/Metal> //Remember to use the ones supported in your system
+	OpenGL_Required - <major.minor>
+	UIStyle - <ImGuiClassic/ImGuiDark/ImGuiLight>
+	
+If a property is not defined, a default one will be used.

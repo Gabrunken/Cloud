@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <GLFW/glfw3.h>
 #include <string>
+#include <backends/imgui_impl_glfw.h>
 
 static std::unordered_map<std::string, GLFWwindow*> _windows;
 
