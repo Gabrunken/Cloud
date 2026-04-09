@@ -10,7 +10,7 @@
 	#define RENDERER_API API_IMPORT
 #endif
 
-class IRenderContext
+class RenderContext
 {
 public:
 	Color backgroundColor{};

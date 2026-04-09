@@ -23,7 +23,7 @@ public:
     
     Color(double r, double g, double b, double a) : r(r), g(b), b(b), a(a) {}
     Color(float r, float g, float b, float a) : r(r), g(b), b(b), a(a) {}
-
+    
     bool operator==(const Color& other) const
     {
         return r == other.r && g == other.g && b == other.b && a == other.a;

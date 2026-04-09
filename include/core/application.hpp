@@ -7,7 +7,7 @@
 
 namespace Application
 {
-	bool Launch();
+	bool Run();
 	
 	bool IsModuleInitialized(int moduleFlag);
 

@@ -2,7 +2,7 @@
 #include <core/logger.hpp>
 #include <glad/glad.h>
 
-class OpenGLRenderContext : public IRenderContext
+class OpenGLRenderContext : public RenderContext
 {
 public:
 	const char* vendor = "null";
@@ -72,7 +72,7 @@ extern "C" RENDERER_API RenderInterface* CreateRenderer(LogCallback log, Graphic
 	loaderCallback = loader;
 	return new OpenGLRenderer();
 }
- 
+
 extern "C" RENDERER_API void DestroyRenderer(RenderInterface* ptr)
 {
 	if (!ptr)

@@ -1,7 +1,7 @@
 #include <subsystems/render_interface.hpp>
 #include <core/logger.hpp>
 
-class DirectX12RenderContext : public IRenderContext
+class DirectX12RenderContext : public RenderContext
 {
 
 };

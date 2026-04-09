@@ -5,7 +5,7 @@
 */
 int main(int argc, char** argv)
 {
-	if (!Application::Launch())
+	if (!Application::Run())
 	{
 		#ifdef SHOW_CONSOLE
 		printf("Something went wrong when launching Cloud.\n");

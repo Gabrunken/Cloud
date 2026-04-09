@@ -20,9 +20,13 @@
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
+
+#ifdef __APPLE__
+#include <backends/imgui_impl_metal.h>
+#else
 //#include <backends/imgui_impl_vulkan.h>
 #include <backends/imgui_impl_dx12.h>
-#include <backends/imgui_impl_metal.h>
+#endif
 
 #ifdef CLOUD_EDITOR
 #include <editor/editor.hpp>
@@ -51,7 +55,7 @@ namespace Application
     static void TerminateModules();
     static void GLFWErrorCallback(int error, const char* description);
 
-    bool Launch()
+    bool Run()
     {
         if (_appLaunched) return true;
 
@@ -196,6 +200,16 @@ namespace Application
         glfwSetErrorCallback(GLFWErrorCallback);
 
         _appLaunched = true;
+        
+        //Start the Main Loop
+        #ifdef CLOUD_EDITOR
+        Logger::PushMessage("Main", "Editor not yet implemented", Logger::Fatal);
+        #else
+        Game::InitializeWithoutEditor();
+        while (Game::RunWithoutEditor());
+        Game::TerminateWithoutEditor();
+        #endif
+
         return true;
     }
 
@@ -271,15 +285,6 @@ namespace Application
         }
 
         _initializedModules |= INITIALIZED_IMGUI;
-
-        //Start the Main Loop
-        #ifdef CLOUD_EDITOR
-        Logger::PushMessage("Main", "Editor not yet implemented", Logger::Fatal);
-        #else
-        Game::InitializeWithoutEditor();
-        while (Game::RunWithoutEditor());
-        Game::TerminateWithoutEditor();
-        #endif
 
         return true;
     }
