@@ -171,21 +171,31 @@ namespace Application
         }
 
         #ifdef __APPLE__
-        if (_settings.graphicsAPI != GraphicsAPI::Metal)
+        if (_settings.graphicsAPI != GraphicsAPI::Metal &&
+	    _settings.graphicsAPI != GraphicsAPI::OpenGL)
         {
             #ifdef SHOW_CONSOLE
-            printf("On MacOS, Metal graphics API is required.\r\n");
+            printf("On MacOS, Metal or OpenGL graphics API is required.\r\n");
             #endif
             return false;
         }
         #elif __linux__
-        if (_settings.graphicsAPI == GraphicsAPI::DirectX12)
+        if (_settings.graphicsAPI == GraphicsAPI::DirectX12 ||
+	    _settings.graphicsAPI == GraphicsAPI::Metal)
         {
             #ifdef SHOW_CONSOLE
-            printf("On linux, DirectX12 graphics API is not supported.\r\n");
+            printf("On linux, DirectX12 and Metal graphics API is not supported.\r\n");
             #endif
             return false;
         }
+	#elif _WIN32
+	if (_settings.graphicsAPI == GraphicsAPI::Metal)
+	{
+	    #ifdef SHOW_CONSOLE
+	    printf("On windows, Metal graphics API is not supported\r\n");
+	    #endif
+	    return false;
+	}
         #endif
 
         fclose(settingsFile);
