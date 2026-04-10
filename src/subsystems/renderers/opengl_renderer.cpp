@@ -28,13 +28,13 @@ public:
 		currentRenderingContext.version = (const char*)glGetString(GL_VERSION);
 		currentRenderingContext.glslVers = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-		std::string detailString = "renderer details:\n\tVendor: ";
+		std::string detailString = "renderer details:\r\n\tVendor: ";
 		detailString.append(currentRenderingContext.vendor);
-		detailString.append("\n\tRenderer: ");
+		detailString.append("\r\n\tRenderer: ");
 		detailString.append(currentRenderingContext.renderer);
-		detailString.append("\n\tVersion: ");
+		detailString.append("\r\n\tVersion: ");
 		detailString.append(currentRenderingContext.version);
-		detailString.append("\n\tGLSL Version: ");
+		detailString.append("\r\n\tGLSL Version: ");
 		detailString.append(currentRenderingContext.glslVers);
 
 		logCallback("OpenGLRenderer::Constructor", detailString, Logger::Note);

@@ -64,12 +64,14 @@ target_compile_definitions(Cloud PRIVATE #Useful for loading shared libraries
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${MAIN_SOURCES} ${THIRD_PARTY_SOURCES}) #Make them show in IDEs
 
-#Compiler macros
+#Compiler options
 option(SHOW_CONSOLE "Show console" ON) #Or else print only on file
 option(TRACY_ENABLED "Enable tracy" ON) #Enable profiling
+option(DEBUG_BUILD "Enable debug build" ON) #Enable debug symbols
 
 if (SHOW_CONSOLE)
 	target_compile_definitions(Cloud PRIVATE SHOW_CONSOLE)
+    message(STATUS "SHOW_CONSOLE option is enabled")
 else ()
     if (OS_DIR STREQUAL "win")
         set_target_properties(Cloud PROPERTIES WIN32_EXECUTABLE TRUE)
@@ -82,7 +84,13 @@ endif ()
 
 if (TRACY_ENABLED)
 	target_compile_definitions(Cloud PRIVATE TRACY_ENABLED)
+    message(STATUS "TRACY_ENABLED option is enabled")
 endif ()
+
+if (DEBUG_BUILD AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(Cloud PRIVATE -g)
+    message(STATUS "DEBUG_BUILD option is enabled")
+endif()
 
 #Global include directiories
 include_directories(
@@ -127,12 +135,17 @@ list(APPEND IMGUI_SOURCES
 
 if (NOT APPLE)
 	list(REMOVE_ITEM IMGUI_SOURCES ${imgui_SOURCE_DIR}/backends/imgui_impl_metal.mm)
-	message(STATUS "removed imgui metal implementation since the target platform is Windows")
+	message(STATUS "removed imgui metal implementation since the target platform is not apple")
+endif()
+
+if (NOT WIN32)
+    list(REMOVE_ITEM IMGUI_SOURCES ${imgui_SOURCE_DIR}/backends/imgui_impl_dx12.cpp)
+    message(STATUS "removed imgui dx12 implementation since the target platform is not windows")
 endif()
 
 add_library(ImGui STATIC ${IMGUI_SOURCES})
 
-target_include_directories(ImGui PUBLIC 
+target_include_directories(ImGui PUBLIC
     ${imgui_SOURCE_DIR}
     ${imgui_SOURCE_DIR}/backends
 )
@@ -151,7 +164,7 @@ endif ()
 
 ### == RENDERERS == ###
 #Compile OpenGL for every system
-add_library(OpenGLRenderer SHARED 
+add_library(OpenGLRenderer SHARED
 ${CMAKE_CURRENT_SOURCE_DIR}/src/subsystems/renderers/opengl_renderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/third-party/glad.c
 )

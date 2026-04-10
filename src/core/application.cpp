@@ -25,7 +25,9 @@
 #include <backends/imgui_impl_metal.h>
 #else
 //#include <backends/imgui_impl_vulkan.h>
+#ifdef _WIN32
 #include <backends/imgui_impl_dx12.h>
+#endif
 #endif
 
 #ifdef CLOUD_EDITOR
@@ -61,8 +63,6 @@ namespace Application
 
         tracy::SetThreadName("Main Thread");
 
-        atexit(TerminateModules); //Terminate will be automatically called when the main function returns.
-
         #ifdef SHOW_CONSOLE
         SetupSignalHandlers(); //Correctly terminate the program even when the console is trying to close it before proper clean up.
         #endif
@@ -75,7 +75,7 @@ namespace Application
         if (!settingsFile)
         {
             #ifdef SHOW_CONSOLE
-            printf("Failed to open the settings file at %s\n", SETTINGS_FILE_PATH);
+            printf("Failed to open the settings file at %s\r\n", SETTINGS_FILE_PATH);
             #endif
             return false;
         }
@@ -125,7 +125,9 @@ namespace Application
                     #ifdef SHOW_CONSOLE
                     printf(
                         GTUI_ESC_ENABLE_BOLD GTUI_ESC_FG_YELLOW
-                        "Application::Initialize -- the requested opengl version was below the minimum requirements, so the %d.%d version will be used instead.\n"
+                        "Application::Initialize -- the requested opengl version was below the minimum requirements, "
+                        "so the %d.%d version will be requested instead.\r\n"
+                        "Note that the final resulting version might be higher, depending on glfw implementations\r\n."
                         GTUI_ESC_DISABLE_BOLD GTUI_ESC_FG_DEFAULT,
                         OPENGL_MAJOR_REQUIRED, OPENGL_MINOR_REQUIRED);
                     #endif
@@ -138,7 +140,9 @@ namespace Application
                     #ifdef SHOW_CONSOLE
                     printf(
                         GTUI_ESC_ENABLE_BOLD GTUI_ESC_FG_YELLOW
-                        "Application::Initialize -- the requested opengl version was below the minimum requirements, so the %d.%d version will be used instead.\n"
+                        "Application::Initialize -- the requested opengl version was below the minimum requirements, "
+                        "so the %d.%d version will be requested instead.\r\n"
+                        "Note that the final resulting version might be higher, depending on glfw implementations\r\n."
                         GTUI_ESC_DISABLE_BOLD GTUI_ESC_FG_DEFAULT,
                         OPENGL_MAJOR_REQUIRED, OPENGL_MINOR_REQUIRED);
                     #endif
@@ -168,18 +172,22 @@ namespace Application
 
         #ifdef __APPLE__
         if (_settings.graphicsAPI != GraphicsAPI::Metal)
+        {
             #ifdef SHOW_CONSOLE
-            printf("On MacOS, Metal graphics API is required.\n");
+            printf("On MacOS, Metal graphics API is required.\r\n");
             #endif
             return false;
+        }
         #elif __linux__
         if (_settings.graphicsAPI == GraphicsAPI::DirectX12)
+        {
             #ifdef SHOW_CONSOLE
-            printf("On linux, DirectX12 graphics API is not supported.\n");
+            printf("On linux, DirectX12 graphics API is not supported.\r\n");
             #endif
             return false;
+        }
         #endif
-        
+
         fclose(settingsFile);
 
         _settingsInitialized = true;
@@ -194,13 +202,20 @@ namespace Application
                 Logger::PushMessage("Main", "Failed to initialize Cloud", Logger::Fatal);
             }
 
+            else
+            {
+                #ifdef SHOW_CONSOLE
+                printf("Failed to initalize logger\r\n");
+                #endif
+            }
+
             return false;
         }
 
         glfwSetErrorCallback(GLFWErrorCallback);
 
         _appLaunched = true;
-        
+
         //Start the Main Loop
         #ifdef CLOUD_EDITOR
         Logger::PushMessage("Main", "Editor not yet implemented", Logger::Fatal);
@@ -210,6 +225,8 @@ namespace Application
         Game::TerminateWithoutEditor();
         #endif
 
+        TerminateModules();
+
         return true;
     }
 
@@ -218,7 +235,7 @@ namespace Application
         if (!Logger::Initialize(_settings.loggerFilePath))
         {
 #ifdef SHOW_CONSOLE
-            printf("Failed to initialize Logger.\nEngine closing...");
+            printf("Failed to initialize Logger.\r\nEngine closing...\r\n");
 #endif
             return false;
         }

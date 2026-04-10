@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 	if (!Application::Run())
 	{
 		#ifdef SHOW_CONSOLE
-		printf("Something went wrong when launching Cloud.\n");
+		printf("Something went wrong when launching Cloud.\r\n");
 		#endif
 
 		return 1;

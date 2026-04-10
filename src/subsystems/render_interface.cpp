@@ -18,7 +18,7 @@ namespace Renderer
 		void* apiLoader = nullptr;
 
 		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
-		
+
 		//Quick OpenGL check for glfw
 		if (graphicsAPI == GraphicsAPI::OpenGL)
 		{
@@ -30,7 +30,7 @@ namespace Renderer
 			#ifdef __APPLE__
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 			#endif
-			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);	
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		}
 
 		else
@@ -49,12 +49,12 @@ namespace Renderer
 			return false;
 		}
 
-		//Load library		
+		//Load library
 		switch (graphicsAPI)
 		{
 		case GraphicsAPI::OpenGL:
 			graphicsLib = LoadSharedLibrary(SHARED_LIB_PREFIX "OpenGLRenderer" SHARED_LIB_SUFFIX);
-			apiLoader = glfwGetProcAddress;
+			apiLoader = (void*)glfwGetProcAddress;
 			glfwMakeContextCurrent(window);
 			break;
 		case GraphicsAPI::Vulkan:
@@ -87,7 +87,7 @@ namespace Renderer
 
 		CreateRendererFunc func = reinterpret_cast<CreateRendererFunc>(symbol);
 		rendererInterface = func(reinterpret_cast<LogCallback>(Logger::PushMessage), reinterpret_cast<GraphicsAPILoader>(apiLoader));
-		
+
 		Logger::PushMessage("Renderer::Initialize", "initialized successfully", Logger::Success);
 		_initialized = true;
 		return true;
@@ -102,7 +102,7 @@ namespace Renderer
 	void Terminate()
 	{
 		CloudAssert(_initialized, "Renderer::Terminate", "has to be initialized");
-		
+
 		//Destroy renderer
 		void* symbol = GetLibrarySymbol(graphicsLib, "DestroyRenderer");
 		if (!symbol)

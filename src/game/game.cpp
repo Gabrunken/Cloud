@@ -73,13 +73,13 @@ namespace Game
 		{
 			renderer->SetBackgroundColor(bgCol);
 		}
-		
+
 		static bool windowDecorations = true;
 		if (ImGui::Checkbox("Window decorations", &windowDecorations))
 		{
 			glfwSetWindowAttrib(window, GLFW_DECORATED, windowDecorations);
 		}
-		
+
 		ImGui::End();
 #pragma endregion
 
@@ -115,6 +115,7 @@ namespace Game
 		Window::RenameWindow("no title", "Game");
 		window = Window::GetWindow("Game");
 		glfwSetWindowSize(window, 1000, 600);
+		glfwSwapInterval(0); //Should work only with OpenGL
 
 		ImGui_ImplGlfw_InitForOther(window, true);
 
@@ -134,7 +135,7 @@ namespace Game
 		double time = glfwGetTime();
 
 		renderer->ClearBackground();
-		
+
 		ImGuiPass();
 
 		if (Application::GetSettings().graphicsAPI == GraphicsAPI::OpenGL) { glfwSwapBuffers(window); }
