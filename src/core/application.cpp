@@ -171,48 +171,37 @@ namespace Application
         }
 
         #ifdef __APPLE__
-<<<<<<< HEAD
+
         if (_settings.graphicsAPI != GraphicsAPI::Metal &&
 	    _settings.graphicsAPI != GraphicsAPI::OpenGL)
         {
             #ifdef SHOW_CONSOLE
-            printf("On MacOS, Metal or OpenGL graphics API is required.\r\n");
-=======
-        if (_settings.graphicsAPI != GraphicsAPI::Metal)
-        {
-            #ifdef SHOW_CONSOLE
-            printf("On MacOS, Metal graphics API is required.\r\n");
->>>>>>> parent of 4f48f2a (Fixed macos crashing on Launch)
+            printf("On MacOS, Metal or OpenGL graphics APIs are required.\r\n");
             #endif
             return false;
         }
+
         #elif __linux__
-<<<<<<< HEAD
+
         if (_settings.graphicsAPI == GraphicsAPI::DirectX12 ||
 	    _settings.graphicsAPI == GraphicsAPI::Metal)
         {
             #ifdef SHOW_CONSOLE
-            printf("On linux, DirectX12 and Metal graphics API is not supported.\r\n");
+            printf("On linux, DirectX12 and Metal graphics APIs are not supported.\r\n");
             #endif
             return false;
         }
-	#elif _WIN32
-	if (_settings.graphicsAPI == GraphicsAPI::Metal)
-	{
-	    #ifdef SHOW_CONSOLE
-	    printf("On windows, Metal graphics API is not supported\r\n");
-	    #endif
-	    return false;
-	}
-=======
-        if (_settings.graphicsAPI == GraphicsAPI::DirectX12)
-        {
-            #ifdef SHOW_CONSOLE
-            printf("On linux, DirectX12 graphics API is not supported.\r\n");
-            #endif
-            return false;
-        }
->>>>>>> parent of 4f48f2a (Fixed macos crashing on Launch)
+
+        #elif _WIN32
+
+    	if (_settings.graphicsAPI == GraphicsAPI::Metal)
+    	{
+    	    #ifdef SHOW_CONSOLE
+    	    printf("On windows, Metal graphics API is not supported\r\n");
+    	    #endif
+    	    return false;
+    	}
+
         #endif
 
         fclose(settingsFile);
@@ -383,8 +372,4 @@ namespace Application
 
         return _settings;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> parent of 4f48f2a (Fixed macos crashing on Launch)
